@@ -68,9 +68,9 @@ int main(int argc, char **argv){
 
             // check which gait was selected
 	        if (gaitEnergeticsTool->getGaitType().data == gaits.wave){
-		        sleep(8); // wave takes longer to switch sleep until switch is done
+		        sleep(6); // wave takes longer to switch sleep until switch is done
 	        }else if (gaitEnergeticsTool->getGaitType().data == gaits.tripod){
-		        sleep(5); // tripod is quicker to switch
+		        sleep(4); // tripod is quicker to switch
 	        }
             // maintain previous direction
 	        velocity_command.publish(previous_velocity);

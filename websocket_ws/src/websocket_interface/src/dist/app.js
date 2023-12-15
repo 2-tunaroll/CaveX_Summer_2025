@@ -82,6 +82,7 @@ function createWSServer(expressServer) {
 // const arachnidaMsgs = rosnodejs.require("arachnida");
 // const rosNH = rosnodejs.nh; // NodeHandler
 // END: ROS Stuff
+let frameIterator = 0; // Used to throttle frame data
 const server = app.listen(port, () => {
     let frameBuf = Buffer.alloc(0);
     console.log(`[websocket_interface] Server running at port ${port}`);
@@ -96,22 +97,20 @@ const server = app.listen(port, () => {
     });
     udpSock.on("message", (msg, rinfo) => {
         //console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
-        if (ws.readyState === ws.OPEN) {
-            console.log("WS TRYING TO SEND MESSAGE\n");
-            if (frameBuf.length >= 94068) {
-                console.log("WS SENDING MESSAGE\n");
-                //console.log(msg);
-                //ws.send(msg); // Forward message (raw pointcloud data) to backend via websocket
-                console.log(frameBuf);
-                ws.send(frameBuf);
-                frameBuf = Buffer.alloc(0); // reset frameBuf to be populated with LiDAR data again
+        if (frameIterator >= 5) {
+            if (ws.readyState === ws.OPEN) {
+                if (frameBuf.length >= 94068) {
+                    ws.send(frameBuf);
+                    frameBuf = Buffer.alloc(0); // reset frameBuf to be populated with LiDAR data again
+                    frameIterator = 0;
+                }
+                else {
+                    frameBuf = Buffer.concat([frameBuf, msg]);
+                }
             }
-            else {
-                console.log("WS CONCATINATING\n");
-                console.log("framebuf length: %d", frameBuf.length);
-                frameBuf = Buffer.concat([frameBuf, msg]);
-                console.log("framebuf length2: %d", frameBuf.length);
-            }
+        }
+        else {
+            frameIterator++;
         }
     });
     udpSock.on("listening", () => {
@@ -135,11 +134,18 @@ const server = app.listen(port, () => {
         // ws.send(msgBuf);
         // n.
         // });
-        // let obstacleSub = n.subscribe("arachnida/obstacle_detection/obstacles", 'arachnida/ObstacleList', (msg) => {
-        //     // if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
-        //     // otherwise add a new Frame to the frameQueue
-        //     console.log('Received obstacle msg: %j', msg);
-        // });
+        let obstacleSub = n.subscribe("arachnida/object_detection/objects_detected", 'arachnida/ObstacleList', (msg) => {
+            // if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
+            // otherwise add a new Frame to the frameQueue
+            console.log('Received obstacle msg: %j', msg);
+            if (ws.readyState === ws.OPEN)
+                ws.send(JSON.stringify(msg));
+        });
+        let floamSub = n.subscribe("arachnida/floam_odom", 'nav_msgs/Odometry', (msg) => {
+            console.log('Received floam msg: %j', msg);
+            if (ws.readyState === ws.OPEN)
+                ws.send(JSON.stringify(msg));
+        });
     });
 });
 const wssp = createWSServer(server);

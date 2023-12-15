@@ -89,7 +89,7 @@ async function createWSServer(expressServer: http.Server): Promise<WebSocketServ
 
 
 // END: ROS Stuff
-
+let frameIterator: number = 0; // Used to throttle frame data
 const server = app.listen(port, () => {
 	let frameBuf: Buffer = Buffer.alloc(0);
 	console.log(`[websocket_interface] Server running at port ${port}`);
@@ -105,13 +105,18 @@ const server = app.listen(port, () => {
 
     udpSock.on("message", (msg, rinfo) => {
         //console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
-        if(ws.readyState === ws.OPEN) {
-		if(frameBuf.length >= 94068) {
-			ws.send(frameBuf);
-			frameBuf = Buffer.alloc(0); // reset frameBuf to be populated with LiDAR data again
-		} else {
-			frameBuf = Buffer.concat([frameBuf, msg]);
+	if(frameIterator >= 5) {
+		if(ws.readyState === ws.OPEN) {
+			if(frameBuf.length >= 94068) {
+				ws.send(frameBuf);
+				frameBuf = Buffer.alloc(0); // reset frameBuf to be populated with LiDAR data again
+				frameIterator = 0;
+			} else {
+				frameBuf = Buffer.concat([frameBuf, msg]);
+			}
 		}
+	} else {
+		frameIterator++;
 	}
     });
 
@@ -140,14 +145,15 @@ const server = app.listen(port, () => {
             // n.
         // });
 
-        // let obstacleSub = n.subscribe("arachnida/obstacle_detection/obstacles", 'arachnida/ObstacleList', (msg) => {
-        //     // if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
-        //     // otherwise add a new Frame to the frameQueue
-        //     console.log('Received obstacle msg: %j', msg);
-        // });
-        let floamSub = n.subscribe("arachnida/floam_odom", 'nav_msgs/Odometry', (msg: string) => {
+        let obstacleSub = n.subscribe("arachnida/object_detection/objects_detected", 'arachnida/ObstacleList', (msg: JSON) => {
+            // if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
+            // otherwise add a new Frame to the frameQueue
+            console.log('Received obstacle msg: %j', msg);
+            if(ws.readyState === ws.OPEN) ws.send(JSON.stringify(msg));
+        });
+        let floamSub = n.subscribe("arachnida/floam_odom", 'nav_msgs/Odometry', (msg: JSON) => {
             console.log('Received floam msg: %j', msg);
-            ws.send(msg);
+            if(ws.readyState === ws.OPEN) ws.send(JSON.stringify(msg));
         });
     });
 });
