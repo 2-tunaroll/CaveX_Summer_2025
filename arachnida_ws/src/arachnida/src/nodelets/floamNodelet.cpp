@@ -1,3 +1,6 @@
+// This nodelet runs the F-LOAM code on live
+// VLP-16 data received from the 
+// arachnida/point_cloud/pcl topic.
 #include "pcl/conversions.h"
 #include <pluginlib/class_list_macros.h>
 #include <nodelet/nodelet.h>
@@ -28,6 +31,7 @@ namespace arachnida {
 				ROS_INFO("[floamNodelet.cpp] Initializing F-LOAM nodelet...");
 				ros::NodeHandle &nh = getNodeHandle();
 				floamOdomPub = nh.advertise<nav_msgs::Odometry>("arachnida/floam_odom", 100);
+                // Call the cloudCallback function upon receiving a message from arachnida/point_cloud/pcl
 				pcSub = nh.subscribe("arachnida/point_cloud/pcl", 100, &FLOAMNodelet::cloudCallback, this);
 				ROS_INFO("[floamNodelet.cpp] Initialized F-LOAM nodelet...");
 			};

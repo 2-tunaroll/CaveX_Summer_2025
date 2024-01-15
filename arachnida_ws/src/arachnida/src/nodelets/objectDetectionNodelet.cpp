@@ -1,3 +1,7 @@
+// This nodelet runs the object detection
+// code upon receiving live LiDAR data
+// on the arachnida/point_cloud/pcl
+// topic.
 #include <chrono>
 #include <pluginlib/class_list_macros.h>
 #include <nodelet/nodelet.h>

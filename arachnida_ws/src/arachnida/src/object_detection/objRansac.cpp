@@ -2,7 +2,11 @@
 #include <iostream>
 #include <chrono>
 
-std::unordered_set<int> ransacPlane(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const int maxIterations, const float distanceTolerance) {
+std::unordered_set<int> ransacPlane(
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, 
+    const int maxIterations, 
+    const float distanceTolerance
+) {
     std::unordered_set<int> inliersResult;
     srand(time(NULL));
 

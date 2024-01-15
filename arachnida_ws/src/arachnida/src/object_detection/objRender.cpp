@@ -2,7 +2,11 @@
 
 int countRays = 0;
 
-void renderRays(pcl::visualization::PCLVisualizer::Ptr &viewer, const Vect3 &origin, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud) {
+void renderRays(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    const Vect3 &origin, 
+    const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud
+) {
     // render rays
     for (int i = 0; i < cloud->points.size(); i++) {
         pcl::PointXYZI point = cloud->points[i];
@@ -23,7 +27,12 @@ void clearRays(pcl::visualization::PCLVisualizer::Ptr &viewer) {
     }
 }
 
-void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour) {
+void renderPointCloud(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, 
+    std::string name, 
+    Colour colour
+) {
     if (colour.r == -1) {
         // Select colour based off of cloud intensity
         pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> intensity_distribution(cloud, "intensity");
@@ -49,7 +58,13 @@ void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl:
 // }
 
 // Render wireframe box with filled transparent colour
-void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, Box box, int id, Colour colour, float opacity) {
+void renderBox(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    Box box, 
+    int id, 
+    Colour colour, 
+    float opacity
+) {
     if(opacity > 1.0) opacity = 1.0;
     else if(opacity < 0.0) opacity = 0.0;
 
@@ -67,7 +82,13 @@ void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, Box box, int id, 
     viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, opacity*0.3, cubeFill);
 }
 
-void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, BoxQ box, int id, Colour colour, float opacity) {
+void renderBox(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    BoxQ box, 
+    int id, 
+    Colour colour, 
+    float opacity
+) {
     if(opacity > 1.0) opacity = 1.0;
     else if(opacity < 0.0) opacity = 0.0;
 

@@ -21,10 +21,33 @@ class objPointCloudProcessor {
     public:
         objPointCloudProcessor();
         ~objPointCloudProcessor();
-        void numPoints (pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
-        pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint);
-        std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> separateClouds(pcl::PointIndices::Ptr inliers, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
-        std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentPlane(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const int maxIterations, const float distanceThreshold);
-        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float clusterTolerance, const int minSize, const int maxSize);
+        
+        void numPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
+        
+        pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud(
+            pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, 
+            const float filterRes, 
+            Eigen::Vector4f minPoint, 
+            Eigen::Vector4f maxPoint
+        );
+
+        std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> separateClouds(
+            pcl::PointIndices::Ptr inliers, 
+            pcl::PointCloud<pcl::PointXYZI>::Ptr cloud
+        );
+
+        std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentPlane(
+            pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, 
+            const int maxIterations, 
+            const float distanceThreshold
+        );
+
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusterCloud(
+            pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, 
+            const float clusterTolerance, 
+            const int minSize, 
+            const int maxSize
+        );
+
         Box boundingBox(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster);
 };

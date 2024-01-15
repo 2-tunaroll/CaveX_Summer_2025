@@ -14,11 +14,6 @@
 			This nodelet receives a message and publishes it.
 		</description>
 	</class>
-	<class name="arachnida/PathPlanningNodelet" type="arachnida::PathPlanningNodelet" base_class_type="nodelet::Nodelet">
-		<description>
-			This nodelet receives a message and publishes it.
-		</description>
-	</class>
 	<class name="arachnida/RobotStateNodelet" type="arachnida::RobotStateNodelet" base_class_type="nodelet::Nodelet">
 		<description>
 			This nodelet receives a message and publishes it.

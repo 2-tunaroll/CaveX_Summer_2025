@@ -6,19 +6,23 @@ You should see that relevant ROS environment variables are set similar to below:
 
 ![image](https://github.com/CaveX/CaveX2023/assets/110513531/7b53529a-c058-436b-9fb8-12e9dfe2ae9b)
 
+If the above environment variables are not set, type the following line into the terminal (this should also be added to your `~/.bashrc` configuration file.
+
+`source /opt/ros/noetic/setup.bash`
+
 The following command is also required prior to building the CaveX codebase:
 
 `sudo apt install ros-$ROS_DISTRO-joy ros-$ROS_DISTRO-ros-control ros-$ROS_DISTRO-ros-controllers python3-catkin-tools`
 
 Ensuring that you are in the `~/CaveX2023/openshc_ws` directory run the following command:
 
-`catkin build`
+`catkin_make`
 
 This may take awhile, if you get an internal compiler error this is likely because your WSL server (if you are on windows) is using too much memory and your operating system kills the build process. Try isolating the build to a single core using the following command:
 
-`catkin build -j1`
+`catki_make -j1`
 
-Once the build is complete you will need to source the bash setup script in the development space before launching any ROS packages:
+Once the build is complete you will need to source the bash setup script in the development space before launching any ROS packages to reconfigure the changes:
 
 `source devel/setup.bash`
 
@@ -57,7 +61,7 @@ Refer to the README on the CSIRO [git page](https://github.com/csiro-robotics/dy
 
 **hexapod22**
 
-The hexapod22 package launches the dynamixel interface package which sets up the dynamixel motors on the CaveX robot. This package is not utilised for developers just simulating the robot in Gazebo or RViz. Note that Gazebo and RViz can also be used in real time whilst the robot prototype is running.
+The hexapod22 package launches the dynamixel interface package which sets up the dynamixel motors on the Arachnida robot. This package is not used for developers just simulating the robot in Gazebo or RViz. Note that Gazebo and RViz can also be used in real time whilst the robot prototype is running.
 
 **syropod_highlevel_controller**
 
@@ -65,15 +69,15 @@ This code repository was created by the CSIRO and is responsible for generating 
 
 **syropod_remote**
 
-This repository acts as the interface between user input devices and the *syropod_highlevel_controller*, see this [link](https://github.com/csiro-robotics/syropod_remote).
+This repository acts as the interface between user input devices and the *syropod_highlevel_controller*, see this [link](https://github.com/csiro-robotics/syropod_remote). Note modifications have been made to this repository for integration with dronedeploy and dynamic control method switching.
 
 **syropod_rqt_reconfigure_control**
 
-As stated in the description of the *frankenX_syropod*, the *syropod_rqt_reconfigure_control* repository contains code with supplies an rqt GUI which can interface with OpenSHC for control, syropod_remote can therefore not be running whilst this is in used. See this [link](https://github.com/csiro-robotics/syropod_rqt_reconfigure_control) for more information.
+As stated in the description of the *frankenX_syropod*, the *syropod_rqt_reconfigure_control* repository contains code which supplies an rqt GUI which can interface with OpenSHC for control, syropod_remote can therefore not be running whilst this is in used. See this [link](https://github.com/csiro-robotics/syropod_rqt_reconfigure_control) for more information.
 
 The rqt control method is generally set in a *roslaunch* command by the following syntax, note that the default value for control is joy (joystick):
 
-`control:=rqt`
+`roslaunch frankenX_syropod frankenX_highlevel.launch rviz:=true config:=hexapod21 control:=rqt`
 
 **bullet_syropod**
 

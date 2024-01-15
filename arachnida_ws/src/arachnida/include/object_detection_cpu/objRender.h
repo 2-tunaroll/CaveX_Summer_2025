@@ -9,13 +9,25 @@
 struct Colour {
     float r, g, b;
 
-    Colour(float R, float G, float B) : r(R), g(G), b(B) {}
+    Colour(
+        float R, 
+        float G, 
+        float B
+    ) : r(R), 
+        g(G), 
+        b(B) {}
 };
 
 struct Vect3 {
     double x, y, z;
     
-    Vect3(double X, double Y, double Z) : x(X), y(Y), z(Z) {}
+    Vect3(
+        double X, 
+        double Y, 
+        double Z
+    ) : x(X), 
+        y(Y), 
+        z(Z) {}
 
     Vect3 operator+(const Vect3 &v) {
         return Vect3(x + v.x, y + v.y, z + v.z);
@@ -31,7 +43,15 @@ struct Object { // originally the "Car" struct
     std::string name;
     Colour colour;
 
-    Object(Vect3 position, Vect3 dimensions, Colour colour, std::string name) : position(position), dimensions(dimensions), colour(colour), name(name) {}
+    Object(
+        Vect3 position, 
+        Vect3 dimensions, 
+        Colour colour, 
+        std::string name
+    ) : position(position), 
+        dimensions(dimensions), 
+        colour(colour), 
+        name(name) {}
 
     void render(pcl::visualization::PCLVisualizer::Ptr &viewer) {
 
@@ -48,7 +68,11 @@ struct Object { // originally the "Car" struct
         viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 1.0, name + "Top");
     }
 
-    bool inbetween(double point, double centre, double range) {
+    bool inbetween(
+        double point, 
+        double centre, 
+        double range
+    ) {
         return (centre - range <= point) && (centre + range >= point);
     }
 
@@ -58,9 +82,34 @@ struct Object { // originally the "Car" struct
     }
 };
 
-void renderRays(pcl::visualization::PCLVisualizer::Ptr &viewer, const Vect3 &origin, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud);
+void renderRays(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    const Vect3 &origin, 
+    const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud
+);
+
 void clearRays(pcl::visualization::PCLVisualizer::Ptr &viewer);
-void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour = Colour(1, 1, 1));
+
+void renderPointCloud(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, 
+    std::string name, 
+    Colour colour = Colour(1, 1, 1)
+);
 // void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour = Colour(-1, -1, -1));
-void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, Box box, int id, Colour colour = Colour(1, 0, 0), float opacity = 1);
-void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, BoxQ box, int id, Colour colour = Colour(1, 0, 0), float opacity = 1);
+
+void renderBox(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    Box box, 
+    int id, 
+    Colour colour = Colour(1, 0, 0), 
+    float opacity = 1
+);
+
+void renderBox(
+    pcl::visualization::PCLVisualizer::Ptr &viewer, 
+    BoxQ box, 
+    int id, 
+    Colour colour = Colour(1, 0, 0), 
+    float opacity = 1
+);

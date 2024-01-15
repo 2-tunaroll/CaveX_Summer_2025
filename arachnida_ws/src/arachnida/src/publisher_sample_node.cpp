@@ -1,3 +1,6 @@
+// Sample publisher node.
+// Doesn't do anything meaningful; simply
+// publishes a string in a loop
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include <iostream>

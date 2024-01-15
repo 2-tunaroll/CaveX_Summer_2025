@@ -1,8 +1,9 @@
-#include <cstdio>
-#include <pcl/conversions.h>
 #define M_PI 3.14159265358979323846
 
-#include "velodyneSocketReader.h"
+#include <cstdio>
+#include <pcl/conversions.h>
+#include "arachnida/lidar/velodyneSocketReader.h"
+#include "arachnida/lidar/velodyneUtils.h"
 #include <cmath>
 #include <errno.h>
 #include <string>
@@ -16,6 +17,7 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/PCLPointCloud2.h>
 #include "floam_cpu/laserProcessingClass.h"
 #include "object_detection_cpu/objPointCloudProcessor.h"
 #include "object_detection_cpu/objRansac.h"
@@ -23,19 +25,12 @@
 #include "object_detection_cpu/objRender.h"
 #include "object_detection_cpu/objBox.h"
 #include "object_detection_cpu/objKdtree.h"
-#include "floam_cpu/laserMappingClass.h"
-#include "floam_cpu/laserProcessingClass.h"
-#include "floam_cpu/lidarOptimisation.h"
-#include "floam_cpu/odomEstimationClass.h"
-#include <pcl/PCLPointCloud2.h>
-
 #include "sensor_msgs/PointCloud2.h"
-
-#include "velodyneUtils.h"
-
 #include <fstream>
 
-velodyneSocketReader::velodyneSocketReader() {
+// Constructor to set up some of the initial values
+// for opening a socket to the VLP-16
+arachnida::velodyneSocketReader::velodyneSocketReader() {
     PORT = 2368;
     address.sin_family = AF_INET;
     memset(&address, 0, sizeof(address));
@@ -46,38 +41,22 @@ velodyneSocketReader::velodyneSocketReader() {
 
 int arachnidaLive_sockfd;
 
-// void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
-void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue, ros::Publisher &lidarPub, bool writeToFile) {
-    // START: VARIABLES FOR TESTING SLAM AND OBJ DETECTION
-    objPointCloudProcessor objProcessor;
-    LaserProcessingClass laserProcessing;
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds;
+void arachnida::velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue, ros::Publisher &lidarPub, bool writeToFile) {
     int frameCounter = 1;
-    bool isOdomInitialised = false;
-    odomEstimationClass odomEstimation;
-    LaserMappingClass laserMapping;
-    // END: VARIABLES FOR TESTING SLAM AND OBJ DETECFTION
 
-    // pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
-    // viewer->setBackgroundColor(0,0,0);
-    // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
-    // viewer->addCoordinateSystem(1.0);
-    // viewer->initCameraParameters();
-    // viewer->setCameraPosition(0,16,0,0,0,1);
     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
 
     std::string fileName;
     std::FILE* file;
     for(int currentFileVersion = 1; currentFileVersion < 1000; currentFileVersion++) {
         std::string possibleFileName = "/home/cavex/Documents/velodyneSocketReader_LiDAR_Recording" + std::to_string(currentFileVersion) + ".pcap";
-        //std::string possibleFileNameWithPcap = possibleFileName + ".pcap";
         file = std::fopen(possibleFileName.c_str(), "r");
         if(file == NULL) { // if file does not exist
             fileName = possibleFileName;
             break;
         } else continue;
     }
-    //std::string fileNameWithPcap = fileName + ".pcap";
+
     std::ofstream rawDataFile(fileName);
     int rawDataFileCurrentSizeBytes = 0;
     int rawDataFileCurrentIteration = 0;
@@ -129,7 +108,12 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     int arrayIndexTracker = 0; // counts from 0 to 94036 (94037 bytes of data in a frame)
     int frameBufferQueueArrayIndexTracker = 0; // Counts from 0 to 50 (50 frames in the queue) then gets reset to zero to start overwriting the oldest frame in the queue
     
-    // START: PASS LIDAR DATA FROM PORT 2368 TO PORT 6000 SETUP
+    // START: SETUP PASS LIDAR DATA FROM PORT 2368 TO PORT 6000
+    // This is optional as it is for passing LiDAR data to the
+    // local node.js/expressjs server which subsequently passed the
+    // data to a backend node.js/expressjs server and then to
+    // the NextJS front end (see arachnida_web and
+    // websocket_ws in the CaveX2023 git repo)
     char arachnidaLive_buffer[1206];
     struct sockaddr_in arachnidaLive_servaddr;
     
@@ -146,17 +130,14 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
     int arachnidaLive_n;
     socklen_t arachnidaLive_len;
-
-    // END: PASS LIDAR DATA FROM PORT 2368 TO PORT 6000 SETUP
+    // END: SETUP PASS LIDAR DATA FROM PORT 2368 TO PORT 6000
 
     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
     auto lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
 
-
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
 	
     while(true) {
- //       if(pc->size() > 29000) pc->clear();
         do {
             int retval = poll(fds, 1, POLL_TIMEOUT);
             if(retval < 0) {
@@ -185,68 +166,11 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
         } else if((size_t) nbytes == 1206) {
             packetCounter++;
             int arachnidaLive_result = sendto(arachnidaLive_sockfd, (const char *)buffer, nbytes, MSG_CONFIRM, (const struct sockaddr *)&arachnidaLive_servaddr, sizeof(arachnidaLive_servaddr));
-            //std::cout << "Arachnida Live Send Result: " << arachnidaLive_result << "\n";
             if(arachnidaLive_result < 0) {
                 perror("Arachnida Live Failed to Send");
             }
-            // if(writeToFile) rawDataFile << buffer; // Write bytes to file
-            
-            // std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
-            // parsePacketToPointCloud(packetBuffer, pointCloud);
-            // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
-            // else break;
-            // break;
-            
-            // std::stringstream ss;
-            // ss << std::hex << std::setfill('0');
-            // for (int i = 0; i < 1206; ++i) {
-            //     ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
-            //    if(arrayIndexTracker > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
-            //        frameBuffer[arrayIndexTracker] = buffer[i];
-            //        arrayIndexTracker++;
-            //    }
-            //    if(frameBufferQueue.size() > 1000) frameBufferQueue.front();
-                // frameBuffer.push_back(buffer[i]);
-            // }
 
-            // TESTING: Storing data using std::array
-            // for (int i = 0; i < 1206; ++i) {
-            //     if(arrayIndexTracker < 94036) {
-            //         frameBuffer[arrayIndexTracker] = buffer[i];
-            //         arrayIndexTracker++;
-            //     } else {
-            //         if(frameBufferQueueArrayIndexTracker > 50) frameBufferQueueArrayIndexTracker = 0;
-            //         arrayIndexTracker = 0;
-            //         frameBufferQueue[frameBufferQueueArrayIndexTracker] = frameBuffer;
-            //         frameBufferQueueArrayIndexTracker++;
-            //     }
-            // }
-
-            // if(frameBufferQueueArrayIndexTracker == 50) {
-            //     auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
-            //     std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
-            //     break;
-            // }
-
-            // auto ARRAY_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
-            // END TESTING: Storing data using std::array
-
-            // TESTING: Storing data using std::vector
-            // auto VEC_TEST_T1 = std::chrono::high_resolution_clock::now();
-            // std::stringstream ss2;
-            // ss2 << std::hex << std::setfill('0');
             for (int i = 0; i < 1206; ++i) {
-                // if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
- //                   frameBufferQueue.push_back(frameBuffer);
- //                   frameBufferQueueArrayIndexTracker++;
-		    //std::vector<char> frame = frameBufferQueue.back();
-		    //for(int c = 0; c < 94036; ++c) {
-                    //	ss2 << std::setw(2) << static_cast<unsigned>(frame[c]) << " ";
-		    //}
-		    //std::cout << "frame: " << ss2.str() << "\n";
- //                   parseFrameToPointCloud(frameBufferQueue.back(), pc);
- //                   frameBuffer.clear();
-                // }
                 if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
                 if(writeToFile) { 
@@ -256,7 +180,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                         std::string newFileIterationName =  fileName + " iteration " + std::to_string(rawDataFileCurrentIteration) + ".pcap";
                         rawDataFile.open(newFileIterationName);
                         rawDataFileCurrentIteration++;
-			rawDataFileCurrentSizeBytes = 0;
+                        rawDataFileCurrentSizeBytes = 0;
                     }
                     rawDataFile << buffer[i]; // Write bytes to file
                     rawDataFileCurrentSizeBytes++;
@@ -269,133 +193,14 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 frameBuffer.clear();
             }
 
-
-            // if(frameBufferQueueArrayIndexTracker == 50) {
-            //     auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
-                // std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
-                // if(VEC_TEST_T2.count() > 5000) break;
-                // break;
-            // }
-
             if(pc->size() > 29000) {
                 frameCounter++;
 
 				pcl::PCLPointCloud2 cloud2;
-				// pcl::PCLPointCloud2ConstPtr(new pcl::PCLPointCloud2(cloud2)) cloud2ptr;
 				cloud2.header.seq = frameCounter;
 				pcl::toPCLPointCloud2(*pc, cloud2);
 				lidarPub.publish(cloud2);
-
-
-				// viewer->spinOnce(100);
-                // std::cout << "pointCloud size: " << pc->size() << "\n";
-                // std::string frameName = "Frame " + std::to_string(frameCounter);
-                // viewer->removeAllPointClouds();
-                // viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
-
-  //               auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
-  //               
-  //               // TESTING SLAM AND OBJ DETECTION
-  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>());
-  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>());
-  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());
-		//
-  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
-  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
-		// 
-		// 		laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
-		//
-		// 		Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
-		// 		Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
-		//
-		// 		pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
-		//
-		// 		std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
-		//
-		//
-		// 		for(int index = 0; index < pcFilter->points.size(); index++) {
-		// 			pcl::PointXYZI point = pcFilter->points[index];
-		//
-		// 			if(inliers.count(index)) {
-		// 			pointCloudInliers->points.push_back(point);
-		// 			} else {
-		// 			pointCloudOutliers->points.push_back(point);
-		// 			}
-		// 		}
-
-		// renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
-		// renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
-
-		// if(millisSinceLastObjDetect.count() > 1000) {
-		// 	lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
-		// 	// viewer->removeAllShapes();
-		// 	KdTree *tree = new KdTree;
-		// 	std::vector<std::vector<float>> pointVectors;
-		//
-		// 	for(int j = 0; j < pointCloudOutliers->points.size(); j++) {
-		// 	    std::vector<float> pointVector;
-		// 	    pointVector.push_back(pointCloudOutliers->points[j].x);
-		// 	    pointVector.push_back(pointCloudOutliers->points[j].y);
-		// 	    pointVector.push_back(pointCloudOutliers->points[j].z);
-		// 	    pointVectors.push_back(pointVector);
-		// 	    tree->insert(pointVector, j);
-		// 	}
-		//
-		// 	std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.1, 20);
-		//
-			// if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
-			//    if(isOdomInitialised) {
-			//        odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
-			//    } else {
-			//        odomEstimation.init(0.4);
-			//	odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
-			//	isOdomInitialised = true;
-			//    }
-			//}
-			// std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
-			// std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
-			// std::cout << "pointVectors size: " << pointVectors.size() << "\n";
-			// std::cout << "pcFilter size: " << pcFilter->size() << "\n";
-			// std::cout << "clusters size: " << clusters.size() << "\n";
-			
-			//viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
-			//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
-			//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "Frame");
-			
-			// int clusterID = 1;
-			// for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
-			//     // renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
-			//     std::cout << "cluster size: " << cluster->size() << "\n";
-			//     Box box = objProcessor.boundingBox(cluster);
-			//     // renderBox(viewer, box, clusterID);
-			//     clusterID++;
-			// }
-		// }
-
-
-
-            // END: TESTING SLAM AND OBJ DETECTION
-
-
             }
-
-            // END TESTING: Storing data using std::vector
-
-            // if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
-            //     std::cout << "time > 100ms\n";
-            //     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
-                
-            //     // TESTING: VISUALISATION
-            //     // pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
-            //     pointCloud->clear();
-            //     // parsePacketToPointCloud(packetBuffer, pointCloud);
-            //     // packetBuffer.clear();
-            //     // viewer->removeAllPointClouds();
-            //     viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
-            //     // END TESTING: VISUALISATION
-            // }
-
-            // std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {
             std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
         }
@@ -422,7 +227,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
 }
 
-void velodyneSocketReader::disconnect() {
+void arachnida::velodyneSocketReader::disconnect() {
     close(sockfd);
     std::cout << "[velodyneSocketReader.cpp] Socket closed\n";
 }

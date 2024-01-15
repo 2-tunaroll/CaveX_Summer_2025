@@ -1,6 +1,13 @@
 #include "object_detection_cpu/objCluster.h"
 
-void createCluster(const std::vector<std::vector<float>> &points, pcl::PointCloud<pcl::PointXYZI>::Ptr &cluster, int *flag, KdTree *tree, float distanceTolerance, int i) {
+void createCluster(
+    const std::vector<std::vector<float>> &points,
+    pcl::PointCloud<pcl::PointXYZI>::Ptr &cluster, 
+    int *flag, 
+    KdTree *tree, 
+    float distanceTolerance, 
+    int i
+) {
     if(flag[i] == 1) return;
     flag[i] = 1;
 
@@ -20,7 +27,12 @@ void createCluster(const std::vector<std::vector<float>> &points, pcl::PointClou
     }
 }
 
-std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> euclideanCluster(const std::vector<std::vector<float>> &points, KdTree *tree, float distanceTolerance, int minSize) {
+std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> euclideanCluster(
+    const std::vector<std::vector<float>> &points, 
+    KdTree *tree, 
+    float distanceTolerance, 
+    int minSize
+) {
     int size = points.size();
     int flag[size];    
     

@@ -1,3 +1,7 @@
+// Sample subscriber node.
+// Doesn't do anything meaningful; simply
+// listens to the data from the sample 
+// publisher node (publisher_sample_node)
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 

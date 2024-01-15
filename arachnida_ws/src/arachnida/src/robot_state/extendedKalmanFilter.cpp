@@ -1,6 +1,10 @@
+// UNFINISHED
+// Supposed to define all the functionality to run various sensor
+// data through Extended Kalman Filters to improve measurement
+// accuracy.
 #include "arachnida/robot_state/extendedKalmanFilter.h"
 
-void cavex::ExtendedKalmanFilter::ekfInit(EKF_t ekf) {   
+void arachnida::ExtendedKalmanFilter::ekfInit(EKF_t ekf) {   
     // Initialise matrices to zeroes
     this->ekf.P = Eigen::MatrixXd::Zero(this->ekf.n, this->ekf.n);
     this->ekf.Q = Eigen::MatrixXd::Zero(this->ekf.n, this->ekf.n);
@@ -10,7 +14,10 @@ void cavex::ExtendedKalmanFilter::ekfInit(EKF_t ekf) {
     this->ekf.H = Eigen::MatrixXd::Zero(this->ekf.m, this->ekf.n);
 };
 
-int cavex::ExtendedKalmanFilter::ekfStep(EKF_t ekf, Eigen::VectorXd &observationVec) {
+int arachnida::ExtendedKalmanFilter::ekfStep(
+    EKF_t ekf, 
+    Eigen::VectorXd &observationVec
+) {
     // Predict
     ekf.x = ekf.fx;
     ekf.P = ekf.F * ekf.P * ekf.F.transpose() + ekf.Q;
@@ -23,6 +30,11 @@ int cavex::ExtendedKalmanFilter::ekfStep(EKF_t ekf, Eigen::VectorXd &observation
     return 0;
 };
 
-void cavex::ExtendedKalmanFilter::model(const Eigen::VectorXd fx, const Eigen::MatrixXd F, const Eigen::VectorXd hx, const Eigen::MatrixXd H) {
+void arachnida::ExtendedKalmanFilter::model(
+    const Eigen::VectorXd fx, 
+    const Eigen::MatrixXd F, 
+    const Eigen::VectorXd hx, 
+    const Eigen::MatrixXd H
+) {
 
 };

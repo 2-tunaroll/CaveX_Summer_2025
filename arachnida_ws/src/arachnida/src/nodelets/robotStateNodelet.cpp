@@ -1,3 +1,29 @@
+// This nodelet tracks the robot's state 
+// (current_pose and cumulative_pose) based 
+// on the results of F-LOAM, which are 
+// received via the arachnida/floam_odom 
+// topic.
+// pose: position and orientation (6DOF)
+// current_pose: simply re-publishes the F-LOAM 
+//               results so that there's an
+//               intermediary layer where extra
+//               processing can occur while still
+//               allowing access to unprocessed
+//               F-LOAM results at the
+//               arachnida/floam_odom topic.
+//               For example, the raw F-LOAM results
+//               may need to be filtered in the 
+//               future. Hence, new systems should
+//               always listen to current_pose
+//               unless it is known that the raw
+//               F-LOAM data is only what will
+//               ever be required.
+// cumulative_pose: the robot's pose relative to
+//                  the pose F-LOAM started at.
+//                  The position part of this pose
+//                  is the location of the robot
+//                  relative to its starting 
+//                  location.
 #include <pluginlib/class_list_macros.h>
 #include <nodelet/nodelet.h>
 #include <ros/ros.h>
@@ -25,6 +51,12 @@ namespace arachnida {
 				ROS_INFO("[robotStateNodelet.cpp] Initialized Robot State nodelet...");
 			};
 
+            // This function uses F-LOAM results to track the current_pose and cumulative_pose 
+            // of the robot (see top of file comment to learn more). 
+            // Note: For cumulative_pose, the data is simply integrated. Hence, the error is
+            //       integrated as well. With this in mind, this data should be filtered to 
+            //       maintain accuracy over time. An Extended Kalman Filter (EKF) applied to
+            //       F-LOAM and IMU data is a common way to implement this.
             void floamCallback(const nav_msgs::Odometry floam_msg) {
                 RobotState newState;
 

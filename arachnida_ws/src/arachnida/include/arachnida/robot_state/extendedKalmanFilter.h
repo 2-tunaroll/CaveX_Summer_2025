@@ -1,8 +1,12 @@
+// UNFINISHED
+// Supposed to define all the functionality to run various sensor
+// data through Extended Kalman Filters to improve measurement
+// accuracy.
 #pragma once
 
 #include <Eigen/Dense>
 
-namespace cavex {
+namespace arachnida {
     typedef struct EKF_t {
         int n; // Number of state values
         int m; // Number of observables
@@ -30,18 +34,31 @@ namespace cavex {
             Eigen::VectorXd x; // Current state vector
 
         public:
-            ExtendedKalmanFilter(int numberOfStates, int numberOfObservations) : numberOfStates(numberOfStates), numberOfObservations(numberOfObservations) {
+            ExtendedKalmanFilter(
+                int numberOfStates, 
+                int numberOfObservations
+            ) : numberOfStates(numberOfStates), 
+                numberOfObservations(numberOfObservations) 
+            {
                 ekfInit(this->ekf);
                 this->x = this->ekf.x;
             };
 
             ~ExtendedKalmanFilter() {};
 
-            virtual void model(const Eigen::VectorXd fx, const Eigen::MatrixXd F, const Eigen::VectorXd hx, const Eigen::MatrixXd H) = 0;
+            virtual void model(
+                const Eigen::VectorXd fx, 
+                const Eigen::MatrixXd F, 
+                const Eigen::VectorXd hx, 
+                const Eigen::MatrixXd H
+            ) = 0;
 
             void ekfInit(EKF_t ekf);
 
-            int ekfStep(EKF_t ekf, Eigen::VectorXd &observationVec);
+            int ekfStep(
+                EKF_t ekf, 
+                Eigen::VectorXd &observationVec
+            );
 
             bool step(Eigen::VectorXd &observationVec) {
                 this->model(this->ekf.fx, this->ekf.F, this->ekf.hx, this->ekf.H);

@@ -37,13 +37,6 @@
 	<node 
 	pkg="nodelet"
 	type="nodelet"
-	name="PathPlanningNodelet"
-	args="load arachnida/PathPlanningNodelet standalone_manager"
-	output="screen"
-	/>
-	<node 
-	pkg="nodelet"
-	type="nodelet"
 	name="RobotStateNodelet"
 	args="load arachnida/RobotStateNodelet standalone_manager"
 	output="screen"
