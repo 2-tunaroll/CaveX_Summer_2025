@@ -11,6 +11,4 @@ Navigate to the `src/arachnida/src/README.md` file for further explanations on t
 ### Build Arachnida Workspace
 If you have each of the dependencies installed mentioned on the Home [ReadME](https://github.com/CaveX/CaveX2023), you can build the Arachnida ROS package using:
 
-`cd src/arachnida`
-
 `catkin_make`
