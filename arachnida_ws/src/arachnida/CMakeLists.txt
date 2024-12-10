@@ -109,6 +109,13 @@ add_executable(gaitEnergeticsNode src/gait_energetics/gait_energetics.cpp
               src/gait_energetics/main.cpp)
 
 
+add_dependencies(velodyneReaderNode ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}
+)
+
+add_dependencies(pathPlanNode ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}
+)
+
+
 target_link_libraries(publisher_sample_node
   ${catkin_LIBRARIES}
 )
