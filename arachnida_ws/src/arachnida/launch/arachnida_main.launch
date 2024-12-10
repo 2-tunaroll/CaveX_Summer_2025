@@ -23,7 +23,7 @@
 	<node 
 	pkg="nodelet"
 	type="nodelet"
-	name="FLOAMNoelet"
+	name="FLOAMNodelet"
 	args="load arachnida/FLOAMNodelet standalone_manager"
 	output="screen"
 	/>
