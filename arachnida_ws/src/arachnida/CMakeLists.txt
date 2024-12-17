@@ -39,7 +39,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-  ${VTK_USE_FILE}
+ # ${VTK_USE_FILE}
   ${CERES_INCLUDE_DIRS}
 )
 

@@ -57,7 +57,7 @@
         LaserProcessingClass laserProcessing;
         auto t1 = std::chrono::high_resolution_clock::now();
         std::ifstream pcapStream(absolutePath, std::fstream::binary | std::fstream::in);
-        std::ios::streampos fsize = 0;
+        std::streampos fsize = 0;
         fsize = pcapStream.tellg();
         pcapStream.seekg(0, std::ios::end); // go to end of file
         fsize = pcapStream.tellg() - fsize; // calculate size of file in bytes
