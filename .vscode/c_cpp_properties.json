@@ -1,25 +1,25 @@
 {
-  "configurations": [
-    {
-      "browse": {
-        "databaseFilename": "${default}",
-        "limitSymbolsToIncludedHeaders": false
-      },
-      "includePath": [
-        "/opt/ros/noetic/include/**",
-        "/usr/include/**",
-        "${workspaceFolder}/**",
-        "/usr/include/pcl-1.8/**",
-        "/usr/include/eigen3/**",
-        "/usr/include/ceres/ceres-solver/**",
-        "/mnt/c/Programming/SDKs/ceres"
-      ],
-      "name": "ROS",
-      "intelliSenseMode": "gcc-x64",
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "gnu11",
-      "cppStandard": "c++14"
-    }
-  ],
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "/opt/ros/noetic/include/**",
+                "/usr/include/**",
+                "${workspaceFolder}/**",
+                "/usr/include/pcl-1.10/**",
+                "/usr/include/eigen3/**",
+                "/usr/include/ceres/ceres-solver/**",
+                "/mnt/c/Programming/SDKs/ceres"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "gnu11",
+            "cppStandard": "c++14"
+        }
+    ],
     "version": 4
 }
