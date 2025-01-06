@@ -4,8 +4,8 @@
 #include <cmath>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
-#include "arachnida/lidar/velodynePCAPReader.h"
-#include "arachnida/lidar/velodyneUtils.h"
+#include "lidar/velodynePCAPReader.h"
+#include "lidar/velodyneUtils.h"
 #include "floam_cpu/laserProcessingClass.h"
 #include "object_detection_cpu/objPointCloudProcessor.h"
 #include "object_detection_cpu/objRansac.h"

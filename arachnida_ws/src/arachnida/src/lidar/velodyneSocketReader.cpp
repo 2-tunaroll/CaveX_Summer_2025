@@ -2,8 +2,8 @@
 
 #include <cstdio>
 #include <pcl/conversions.h>
-#include "arachnida/lidar/velodyneSocketReader.h"
-#include "arachnida/lidar/velodyneUtils.h"
+#include "lidar/velodyneSocketReader.h"
+#include "lidar/velodyneUtils.h"
 #include <cmath>
 #include <errno.h>
 #include <string>

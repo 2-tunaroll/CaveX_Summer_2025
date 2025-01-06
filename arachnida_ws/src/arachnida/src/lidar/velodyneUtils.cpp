@@ -3,7 +3,7 @@
 // To understand what is happening you'll need to
 // read the relevant part of the VLP-16 user manual.
 // This primarily includes chapters 8 and 9
-#include "arachnida/lidar/velodyneUtils.h"
+#include "lidar/velodyneUtils.h"
 
 #include <string>
 #include <iomanip>

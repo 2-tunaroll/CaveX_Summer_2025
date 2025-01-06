@@ -20,12 +20,12 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-#include "arachnida/lidar/velodynePCAPReader.h"
+#include "lidar/velodynePCAPReader.h"
 #include "floam_cpu/laserMappingClass.h"
 #include "floam_cpu/laserProcessingClass.h"
 #include "floam_cpu/lidarOptimisation.h"
 #include "floam_cpu/odomEstimationClass.h"
-#include "arachnida/lidar/velodyneSocketReader.h"
+#include "lidar/velodyneSocketReader.h"
 #include "object_detection_cpu/objPointCloudProcessor.h"
 #include "object_detection_cpu/objKdtree.h"
 #include "object_detection_cpu/objCluster.h"

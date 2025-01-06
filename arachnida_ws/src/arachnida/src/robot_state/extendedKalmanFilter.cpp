@@ -2,7 +2,7 @@
 // Supposed to define all the functionality to run various sensor
 // data through Extended Kalman Filters to improve measurement
 // accuracy.
-#include "arachnida/robot_state/extendedKalmanFilter.h"
+#include "robot_state/extendedKalmanFilter.h"
 
 void arachnida::ExtendedKalmanFilter::ekfInit(EKF_t ekf) {   
     // Initialise matrices to zeroes

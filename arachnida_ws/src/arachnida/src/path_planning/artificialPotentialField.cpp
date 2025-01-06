@@ -1,4 +1,4 @@
-#include "arachnida/path_planning/artificialPotentialField.h"
+#include "path_planning/artificialPotentialField.h"
 
 arachnida::path_planning::artificialPotentialField::artificialPotentialField() {
     // default constructor
