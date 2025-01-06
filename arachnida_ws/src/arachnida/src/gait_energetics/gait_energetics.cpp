@@ -1,4 +1,4 @@
-#include "gait_energetics.h"
+#include "gait_energistics/gait_energetics.h"
 
 GaitEnergetics::GaitEnergetics(){
     // constructor
