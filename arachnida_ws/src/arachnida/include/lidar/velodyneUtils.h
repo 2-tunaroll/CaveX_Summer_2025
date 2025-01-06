@@ -8,7 +8,7 @@
 #include <pcl/point_cloud.h>
 #include <chrono>
 #include <cmath>
-#include "arachnida/lidar/velodyneSocketReader.h"
+#include "lidar/velodyneSocketReader.h"
 
 namespace arachnida {
     double getLaserAngleFromChannelID(int channelID);
