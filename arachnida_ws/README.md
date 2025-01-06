@@ -14,21 +14,17 @@ Navigate to the `src/arachnida/src/README.md` file for further explanations on t
 ├── src
 │   ├── arachnida
 │   │   ├── include
-│   │   │   ├── arachnida
-│   │   │   │   ├── lidar
-│   │   │   │   │   ├── velodynePCAPReader.h
-│   │   │   │   │   ├── velodyneSocketReader.h
-│   │   │   │   │   └── velodyneUtils.h
-│   │   │   │   ├── path_planning
-│   │   │   │   │   ├── artificialPotentialField.h
-│   │   │   │   │   └── pathPlanningNode.h
-│   │   │   │   └── robot_state
-│   │   │   │       └── extendedKalmanFilter.h
 │   │   │   ├── floam_cpu
 │   │   │   │   ├── laserMappingClass.h
 │   │   │   │   ├── laserProcessingClass.h
 │   │   │   │   ├── lidarOptimisation.h
 │   │   │   │   └── odomEstimationClass.h
+│   │   │   ├── gait_energistics
+│   │   │   │   └── gait_energetics.h
+│   │   │   ├── lidar
+│   │   │   │   ├── velodynePCAPReader.h
+│   │   │   │   ├── velodyneSocketReader.h
+│   │   │   │   └── velodyneUtils.h
 │   │   │   ├── object_detection_cpu
 │   │   │   │   ├── objBox.h
 │   │   │   │   ├── objCluster.h
@@ -36,6 +32,11 @@ Navigate to the `src/arachnida/src/README.md` file for further explanations on t
 │   │   │   │   ├── objPointCloudProcessor.h
 │   │   │   │   ├── objRansac.h
 │   │   │   │   └── objRender.h
+│   │   │   ├── path_planning
+│   │   │   │   ├── artificialPotentialField.h
+│   │   │   │   └── pathPlanningNode.h
+│   │   │   ├── robot_state
+│   │   │   │   └── extendedKalmanFilter.h
 │   │   │   └── utils.h
 │   │   ├── launch
 │   │   │   └── arachnida_main.launch
@@ -52,7 +53,6 @@ Navigate to the `src/arachnida/src/README.md` file for further explanations on t
 │   │   │   │   └── odomEstimationNode.cpp
 │   │   │   ├── gait_energetics
 │   │   │   │   ├── gait_energetics.cpp
-│   │   │   │   ├── gait_energetics.h
 │   │   │   │   └── main.cpp
 │   │   │   ├── lidar
 │   │   │   │   ├── velodynePCAPReader.cpp
