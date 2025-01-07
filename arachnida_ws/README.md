@@ -20,7 +20,7 @@ It is also worth mentioning that when the following two lines appear:
 #include "arachnida/Obstacle.h"
 #include "arachnida/ObstacleList.h"
 ```
-It is possible that vscode will give an error saying these files cannot be found. To fix this, try calling catkin_make and sourcing the devel/setup.bash file. These files are created when catkin_make is called and are within the devel directory. They are based upon the format of the ".msg" files in the msg folder.
+It is possible an error saying these files cannot be found will occur. To fix this, try calling catkin_make and sourcing the devel/setup.bash file. These files are created when catkin_make is called and are within the devel directory. They are based upon the format of the ".msg" files in the msg folder.
 
 
 ### Arachnida Workspace File Structure
